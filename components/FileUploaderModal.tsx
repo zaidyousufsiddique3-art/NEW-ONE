@@ -1,11 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Upload, FileText, Check, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Upload, FileText, Check, AlertCircle, Loader2, BookOpen } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc } from 'firebase/firestore';
 import { storage, db } from '../services/firebaseConfig';
 import { processUploadedFile } from '../services/backendApiService';
+import { Subject } from '../contexts/LanguageContext';
 
 interface FileUploaderModalProps {
     isOpen: boolean;
@@ -18,10 +19,18 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
     const [uploadStatus, setUploadStatus] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+
+    const subjects: Subject[] = ['Accounting', 'ICT', 'Business Studies'];
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         setError(null);
         setSuccess(false);
+
+        if (!selectedSubject) {
+            setError('Please select a subject first.');
+            return;
+        }
 
         if (acceptedFiles.length === 0) return;
 
@@ -35,8 +44,10 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
             setUploadStatus(`Uploading ${i + 1}/${acceptedFiles.length}: ${file.name}...`);
 
             try {
-                // 1. Upload to Firebase Storage
-                const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
+                // 1. Upload to Firebase Storage (Subject-specific folder)
+                // Remove spaces from subject name for folder path
+                const subjectFolder = selectedSubject.replace(/\s+/g, '');
+                const storageRef = ref(storage, `uploads/${subjectFolder}/${Date.now()}_${file.name}`);
                 const snapshot = await uploadBytes(storageRef, file);
                 const downloadURL = await getDownloadURL(snapshot.ref);
 
@@ -44,18 +55,18 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 await addDoc(collection(db, 'files'), {
                     fileName: file.name,
                     fileUrl: downloadURL,
-                    uploadedBy: 'student', // In a real app, this would be the user ID
+                    uploadedBy: 'student',
                     uploadedAt: new Date().toISOString(),
                     size: file.size,
-                    type: file.type
+                    type: file.type,
+                    subject: selectedSubject // Add subject metadata
                 });
 
                 // 3. Process with Backend (OpenAI)
                 try {
-                    await processUploadedFile(downloadURL, file.name);
+                    await processUploadedFile(downloadURL, file.name, selectedSubject);
                 } catch (backendError) {
                     console.warn(`Backend processing failed for ${file.name}, but file is in Firebase.`, backendError);
-                    // Suppress error for UI
                 }
 
                 successCount++;
@@ -65,12 +76,11 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 failCount++;
                 if (err.code === 'storage/unauthorized') {
                     specificError = 'Storage Permission Denied: Update Firebase Storage Rules.';
-                    break; // Stop on permission error
+                    break;
                 } else if (err.code === 'permission-denied') {
                     specificError = 'Firestore Permission Denied: Update Firebase Database Rules.';
                     break;
                 } else {
-                    // Keep the last error message if no specific permission error found yet
                     if (!specificError) specificError = err.message || 'Failed to upload file';
                 }
             }
@@ -91,12 +101,13 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 onClose();
                 setSuccess(false);
                 setUploadStatus('');
+                setSelectedSubject(null); // Reset subject
             }, 2000);
         } else if (failCount > 0) {
             setError(specificError || 'Failed to upload files. Please try again.');
         }
 
-    }, [onClose, onUploadComplete]);
+    }, [onClose, onUploadComplete, selectedSubject]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
@@ -107,8 +118,8 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
             'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.ppt', '.pptx'],
             'image/*': ['.png', '.jpg', '.jpeg']
         },
-        maxFiles: 10, // Allow multiple files
-        disabled: isUploading
+        maxFiles: 10,
+        disabled: isUploading || !selectedSubject
     });
 
     if (!isOpen) return null;
@@ -149,12 +160,34 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                             </div>
                         ) : (
                             <div className="space-y-6">
+                                {/* Subject Selection */}
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                                        Choose Subject
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {subjects.map((subj) => (
+                                            <button
+                                                key={subj}
+                                                onClick={() => setSelectedSubject(subj)}
+                                                disabled={isUploading}
+                                                className={`p-2 rounded-lg border text-xs font-medium transition-all ${selectedSubject === subj
+                                                    ? 'bg-brand-purple/20 border-brand-purple text-white'
+                                                    : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                                                    }`}
+                                            >
+                                                {subj}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
                                 <div
                                     {...getRootProps()}
                                     className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${isDragActive
                                         ? 'border-brand-cyan bg-brand-cyan/5'
                                         : 'border-white/10 hover:border-white/20 hover:bg-white/5'
-                                        } ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        } ${isUploading || !selectedSubject ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     <input {...getInputProps()} />
                                     <div className="flex flex-col items-center gap-4">
@@ -170,9 +203,11 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                                                 {isUploading ? 'Uploading...' : 'Drop your files here'}
                                             </p>
                                             <p className="text-sm text-slate-400">
-                                                {isUploading
-                                                    ? uploadStatus
-                                                    : 'or click to browse (PDF, DOCX, PPT, TXT)'}
+                                                {!selectedSubject
+                                                    ? 'Please select a subject above first'
+                                                    : isUploading
+                                                        ? uploadStatus
+                                                        : 'or click to browse (PDF, DOCX, PPT, TXT)'}
                                             </p>
                                         </div>
                                     </div>

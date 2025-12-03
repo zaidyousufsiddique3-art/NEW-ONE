@@ -34,7 +34,7 @@ app.get('/api/health', (req, res) => {
 // Generate answer with PDF-first logic
 app.post('/api/generate-answer', async (req, res) => {
     try {
-        const { question, selectedLanguage, moduleName } = req.body;
+        const { question, selectedLanguage, moduleName, subject } = req.body;
 
         if (!question) {
             return res.status(400).json({ error: 'Question is required' });
@@ -42,14 +42,15 @@ app.post('/api/generate-answer', async (req, res) => {
 
         const language = selectedLanguage || 'english';
         const module = moduleName || 'General';
+        const subj = subject || 'General';
 
-        console.log(`[${module}] Generating answer for: "${question}" in ${language}`);
+        console.log(`[${module}] Generating answer for: "${question}" in ${language} (Subject: ${subj})`);
 
         let answer;
         if (req.body.images && req.body.images.length > 0) {
             answer = await analyzeImages(question, req.body.images, language);
         } else {
-            answer = await generateAnswer(question, language, module);
+            answer = await generateAnswer(question, language, module, subj);
         }
 
         res.json({
@@ -92,14 +93,14 @@ app.post('/api/upload-pdf', async (req, res) => {
 // Process uploaded file
 app.post('/api/process-file', async (req, res) => {
     try {
-        const { fileUrl, fileName } = req.body;
+        const { fileUrl, fileName, subject } = req.body;
 
         if (!fileUrl || !fileName) {
             return res.status(400).json({ error: 'File URL and name are required' });
         }
 
-        console.log(`Processing uploaded file: ${fileName}`);
-        const fileId = await processUploadedFile(fileUrl, fileName);
+        console.log(`Processing uploaded file: ${fileName} for subject: ${subject}`);
+        const fileId = await processUploadedFile(fileUrl, fileName, subject);
 
         res.json({
             success: true,

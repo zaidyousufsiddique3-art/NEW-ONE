@@ -14,7 +14,7 @@ import { useLanguage } from './contexts/LanguageContext';
 import { getTranslation } from './utils/translations';
 
 export default function App() {
-  const { language } = useLanguage();
+  const { language, subject } = useLanguage();
   const [selectedTool, setSelectedTool] = useState<ToolConfig | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [result, setResult] = useState<string | null>(null);
@@ -50,7 +50,9 @@ export default function App() {
         const answer = await generateAnswerFromBackend(
           fullQuestion,
           language,
-          selectedTool.title
+          selectedTool.title,
+          [],
+          subject || 'General'
         );
 
         setResult(answer);

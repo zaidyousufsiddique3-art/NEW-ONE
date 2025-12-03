@@ -25,23 +25,34 @@ const CONFIG_PATH = path.join(__dirname, 'file-config.json');
 
 /**
  * Get all available file IDs (original PDF + uploaded files from Firestore)
+ * Filter by subject if provided
  */
-export async function getFileIds() {
+export async function getFileIds(subject = 'General') {
     const fileIds = [];
 
-    // 1. Get original PDF ID (from env or local config if exists)
-    try {
-        if (fs.existsSync(CONFIG_PATH)) {
-            const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
-            if (config.fileId) fileIds.push(config.fileId);
+    // 1. Get original PDF ID (from env or local config if exists) - Only for ICT or General
+    if (subject === 'ICT' || subject === 'General') {
+        try {
+            if (fs.existsSync(CONFIG_PATH)) {
+                const config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+                if (config.fileId) fileIds.push(config.fileId);
+            }
+        } catch (error) {
+            console.warn('Could not load original file ID:', error);
         }
-    } catch (error) {
-        console.warn('Could not load original file ID:', error);
     }
 
-    // 2. Get uploaded file IDs from Firestore
+    // 2. Get uploaded file IDs from Firestore, filtered by subject
     try {
-        const querySnapshot = await adminDB.collection("files").get();
+        let query = adminDB.collection("files");
+
+        // If subject is provided, filter by it. If not, maybe get all? 
+        // Requirement: "Always use the subject’s Firebase folder files as the primary knowledge base."
+        if (subject && subject !== 'General') {
+            query = query.where("subject", "==", subject);
+        }
+
+        const querySnapshot = await query.get();
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             if (data.fileId && !fileIds.includes(data.fileId)) {
@@ -61,9 +72,9 @@ export async function getFileIds() {
  * 2. Upload to OpenAI
  * 3. Update Firestore document with fileId
  */
-export async function processUploadedFile(fileUrl, fileName) {
+export async function processUploadedFile(fileUrl, fileName, subject = 'General') {
     try {
-        console.log(`Processing file: ${fileName}`);
+        console.log(`Processing file: ${fileName} for subject: ${subject}`);
 
         // Download file
         const response = await axios.get(fileUrl, { responseType: 'arraybuffer' });
@@ -94,7 +105,8 @@ export async function processUploadedFile(fileUrl, fileName) {
                 updatePromises.push(
                     doc.ref.update({
                         fileId: file.id,
-                        processedAt: new Date().toISOString()
+                        processedAt: new Date().toISOString(),
+                        subject: subject // Ensure subject is updated/set
                     })
                 );
             });
@@ -109,7 +121,8 @@ export async function processUploadedFile(fileUrl, fileName) {
                 processedAt: new Date().toISOString(),
                 uploadedAt: new Date(),
                 type: 'pdf', // Assumed based on context
-                size: fileSize
+                size: fileSize,
+                subject: subject
             });
             console.log(`✅ Created new Firestore document for file: ${fileName}`);
         }
@@ -178,13 +191,13 @@ const getLanguageInstructions = (language) => {
 /**
  * Generate answer with Multi-File RAG logic and OpenAI fallback
  */
-export async function generateAnswer(question, selectedLanguage = 'english', moduleName = 'General') {
+export async function generateAnswer(question, selectedLanguage = 'english', moduleName = 'General', subject = 'General') {
     try {
         const language = selectedLanguage.toLowerCase();
         const languageInstruction = getLanguageInstructions(language);
 
         // Step 1: Try PDF/File-first approach
-        const fileIds = await getFileIds(); // Now async
+        const fileIds = await getFileIds(subject); // Now async
 
         if (fileIds.length > 0) {
             console.log(`[${moduleName}] Attempting RAG with ${fileIds.length} files`);

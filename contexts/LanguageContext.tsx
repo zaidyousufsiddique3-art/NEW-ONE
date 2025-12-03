@@ -1,23 +1,30 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Supported languages
+// Supported languages and subjects
 export type Language = 'english' | 'tamil' | 'sinhala';
+export type Subject = 'Accounting' | 'ICT' | 'Business Studies';
 
 // Language context type
 interface LanguageContextType {
     language: Language | null;
     setLanguage: (lang: Language) => void;
+    subject: Subject | null;
+    setSubject: (subj: Subject) => void;
 }
 
 // Create context
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 // Provider component
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [language, setLanguageState] = useState<Language | null>(() => {
-        // Try to load from localStorage
         const saved = localStorage.getItem('selectedLanguage');
         return saved as Language | null;
+    });
+
+    const [subject, setSubjectState] = useState<Subject | null>(() => {
+        const saved = localStorage.getItem('selectedSubject');
+        return saved as Subject | null;
     });
 
     const setLanguage = (lang: Language) => {
@@ -25,8 +32,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         localStorage.setItem('selectedLanguage', lang);
     };
 
+    const setSubject = (subj: Subject) => {
+        setSubjectState(subj);
+        localStorage.setItem('selectedSubject', subj);
+    };
+
     return (
-        <LanguageContext.Provider value={{ language, setLanguage }}>
+        <LanguageContext.Provider value={{ language, setLanguage, subject, setSubject }}>
             {children}
         </LanguageContext.Provider>
     );

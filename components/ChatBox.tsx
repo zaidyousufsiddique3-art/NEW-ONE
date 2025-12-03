@@ -17,7 +17,7 @@ interface ChatBoxProps {
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
-    const { language } = useLanguage();
+    const { language, subject } = useLanguage();
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
@@ -62,7 +62,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                 userMsg,
                 language,
                 isImageAnalysis ? 'Image Analysis' : 'Ask Question',
-                currentImages
+                currentImages,
+                subject || 'General'
             );
             setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
         } catch (e) {

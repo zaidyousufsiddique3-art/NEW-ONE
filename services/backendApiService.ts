@@ -42,7 +42,8 @@ export async function generateAnswerFromBackend(
     question: string,
     selectedLanguage: string = 'english',
     moduleName: string = 'General',
-    images: string[] = []
+    images: string[] = [],
+    subject: string = 'General'
 ): Promise<string> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/generate-answer`, {
@@ -55,6 +56,7 @@ export async function generateAnswerFromBackend(
                 selectedLanguage,
                 moduleName,
                 images,
+                subject,
             }),
         });
 
@@ -147,10 +149,7 @@ export async function generateLogicDiagram(
 /**
  * Process an uploaded file (add to knowledge hub)
  */
-export async function processUploadedFile(
-    fileUrl: string,
-    fileName: string
-): Promise<{ success: boolean; fileId: string }> {
+export async function processUploadedFile(fileUrl: string, fileName: string, subject?: string): Promise<string> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/process-file`, {
             method: 'POST',
@@ -160,6 +159,7 @@ export async function processUploadedFile(
             body: JSON.stringify({
                 fileUrl,
                 fileName,
+                subject
             }),
         });
 
@@ -168,7 +168,7 @@ export async function processUploadedFile(
         }
 
         const data = await response.json();
-        return { success: true, fileId: data.fileId };
+        return data.fileId;
     } catch (error) {
         console.error('Error processing file:', error);
         throw error;

@@ -28,6 +28,7 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
         setIsUploading(true);
         let successCount = 0;
         let failCount = 0;
+        let specificError = null;
 
         for (let i = 0; i < acceptedFiles.length; i++) {
             const file = acceptedFiles[i];
@@ -50,8 +51,6 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 });
 
                 // 3. Process with Backend (OpenAI)
-                // We attempt this, but if it fails (e.g. 500 error), we still consider the upload "successful" from user perspective
-                // as requested: "The message should appear only if the file reaches Firebase successfully."
                 try {
                     await processUploadedFile(downloadURL, file.name);
                 } catch (backendError) {
@@ -65,11 +64,14 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 console.error(`Error uploading ${file.name}:`, err);
                 failCount++;
                 if (err.code === 'storage/unauthorized') {
-                    setError('Storage Permission Denied: Update Firebase Storage Rules.');
+                    specificError = 'Storage Permission Denied: Update Firebase Storage Rules.';
                     break; // Stop on permission error
                 } else if (err.code === 'permission-denied') {
-                    setError('Firestore Permission Denied: Update Firebase Database Rules.');
+                    specificError = 'Firestore Permission Denied: Update Firebase Database Rules.';
                     break;
+                } else {
+                    // Keep the last error message if no specific permission error found yet
+                    if (!specificError) specificError = err.message || 'Failed to upload file';
                 }
             }
         }
@@ -90,8 +92,8 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 setSuccess(false);
                 setUploadStatus('');
             }, 2000);
-        } else if (failCount > 0 && !error) {
-            setError('Failed to upload files. Please try again.');
+        } else if (failCount > 0) {
+            setError(specificError || 'Failed to upload files. Please try again.');
         }
 
     }, [onClose, onUploadComplete]);

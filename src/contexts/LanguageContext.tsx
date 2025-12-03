@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 // Supported languages and subjects
 export type Language = 'english' | 'tamil' | 'sinhala';
-export type Subject = 'Accounting' | 'ICT' | 'Business Studies';
+export type Subject = 'Accounting' | 'ICT' | 'Business Studies' | 'Economics' | 'Law';
 
 // Language context type
 interface LanguageContextType {

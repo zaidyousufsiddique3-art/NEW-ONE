@@ -23,6 +23,17 @@ export const translations = {
         caseStudyDesc: 'Structured answers for case study scenarios',
         imageAnalysisDesc: 'Upload images and ask questions about them',
 
+        // Subjects
+        subjectICT: 'ICT',
+        subjectAccounting: 'Accounting',
+        subjectBusiness: 'Business Studies',
+        subjectEconomics: 'Economics',
+        subjectLaw: 'Law',
+
+        // Dynamic Subtitle
+        studyToolsSubtitlePrefix: 'AI-powered A-Level',
+        studyToolsSubtitleSuffix: 'study tools.',
+
         // Buttons and labels
         startGenerating: 'START GENERATING',
         topicSubject: 'Topic / Subject',
@@ -42,6 +53,17 @@ export const translations = {
         whatWouldYouLike: 'நீங்கள் என்ன',
         generateToday: 'உருவாக்க விரும்புகிறீர்கள்?',
         studyToolsSubtitle: 'AI-இயக்கப்படும் A-நிலை ICT கல்வி கருவிகள்.',
+
+        // Subjects
+        subjectICT: 'ICT',
+        subjectAccounting: 'கணக்கியல்',
+        subjectBusiness: 'வணிக ஆய்வுகள்',
+        subjectEconomics: 'பொருளாதாரம்',
+        subjectLaw: 'சட்டம்',
+
+        // Dynamic Subtitle
+        studyToolsSubtitlePrefix: 'AI-இயக்கப்படும் A-நிலை',
+        studyToolsSubtitleSuffix: 'கல்வி கருவிகள்.',
 
         // Tool names
         askQuestion: 'கேள்வி கேளுங்கள்',
@@ -78,6 +100,17 @@ export const translations = {
         whatWouldYouLike: 'ඔබට අද',
         generateToday: 'ජනනය කිරීමට අවශ්‍යද?',
         studyToolsSubtitle: 'AI මගින් බලගන්වන A-මට්ටම ICT අධ්‍යයන මෙවලම්.',
+
+        // Subjects
+        subjectICT: 'ICT',
+        subjectAccounting: 'ගිණුම්කරණය',
+        subjectBusiness: 'ව්‍යාපාර අධ්‍යයනය',
+        subjectEconomics: 'ආර්ථික විද්‍යාව',
+        subjectLaw: 'නීතිය',
+
+        // Dynamic Subtitle
+        studyToolsSubtitlePrefix: 'AI මගින් බලගන්වන A-මට්ටම',
+        studyToolsSubtitleSuffix: 'අධ්‍යයන මෙවලම්.',
 
         // Tool names
         askQuestion: 'ප්‍රශ්නයක් අසන්න',

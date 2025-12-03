@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { generateAnswerFromBackend } from '../services/backendApiService';
 import { motion } from 'framer-motion';
 import { Download, Image as ImageIcon, X } from 'lucide-react';
@@ -45,20 +45,38 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
         setSelectedImages(prev => prev.filter((_, i) => i !== index));
     };
 
+    const [note, setNote] = useState('');
+
+    useEffect(() => {
+        if (messages.length === 0 && subject) {
+            // Simple translation map for welcome message
+            const welcomeMap: Record<string, string> = {
+                english: `Hello! How can I assist you with your A-Level ${subject} studies today?`,
+                tamil: `வணக்கம்! இன்று உங்கள் A-Level ${subject} படிப்பில் நான் எவ்வாறு உதவ முடியும்?`,
+                sinhala: `ආයුබෝවන්! අද ඔබේ A-Level ${subject} අධ්‍යයන කටයුතු සඳහා මට කෙසේ උදව් කළ හැකිද?`
+            };
+            setMessages([{ role: 'assistant', content: welcomeMap[language || 'english'] || welcomeMap.english }]);
+        }
+    }, [subject, language]);
+
     const handleSend = async () => {
         if ((!input.trim() && selectedImages.length === 0) || !language) return;
 
         const userMsg = input.trim();
+        const userNote = note.trim();
+        const combinedMsg = isImageAnalysis && userNote ? `${userMsg}\n\nNote: ${userNote}` : userMsg;
+
         const currentImages = [...selectedImages];
 
-        setMessages(prev => [...prev, { role: 'user', content: userMsg, images: currentImages }]);
+        setMessages(prev => [...prev, { role: 'user', content: combinedMsg, images: currentImages }]);
         setInput('');
+        setNote('');
         setSelectedImages([]);
         setIsGenerating(true);
 
         try {
             const answer = await generateAnswerFromBackend(
-                userMsg,
+                combinedMsg,
                 language,
                 isImageAnalysis ? 'Image Analysis' : 'Ask Question',
                 currentImages,
@@ -85,11 +103,10 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                         className={`max-w-[80%] ${msg.role === 'user' ? 'ml-auto' : 'mr-auto'} `}
                     >
                         <div
-                            className={`rounded-lg p-3 ${
-                                msg.role === 'user'
-                                    ? 'bg-brand-cyan text-black'
-                                    : 'bg-white/10 text-white whitespace-pre-wrap'
-                            }`}
+                            className={`rounded-lg p-3 ${msg.role === 'user'
+                                ? 'bg-brand-cyan text-black'
+                                : 'bg-white/10 text-white whitespace-pre-wrap'
+                                }`}
                         >
                             {msg.images && msg.images.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mb-2">
@@ -132,6 +149,20 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                             </button>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Note Input for Image Analysis */}
+            {isImageAnalysis && (
+                <div className="px-2 pb-2 border-t border-white/10 bg-white/5">
+                    <input
+                        type="text"
+                        className="w-full bg-transparent text-white placeholder-gray-500 text-sm px-3 py-1.5 focus:outline-none"
+                        placeholder="Add an optional note..."
+                        value={note}
+                        onChange={e => setNote(e.target.value)}
+                        disabled={isGenerating}
+                    />
                 </div>
             )}
 

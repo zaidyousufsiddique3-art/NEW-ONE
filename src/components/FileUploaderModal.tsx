@@ -12,14 +12,20 @@ interface FileUploaderModalProps {
     isOpen: boolean;
     onClose: () => void;
     onUploadComplete: () => void;
+    initialSubject?: Subject | null;
 }
 
-export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, onClose, onUploadComplete }) => {
+export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, onClose, onUploadComplete, initialSubject }) => {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadStatus, setUploadStatus] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
-    const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+    const [selectedSubject, setSelectedSubject] = useState<Subject | null>(initialSubject || null);
+
+    // Update selectedSubject when initialSubject changes
+    React.useEffect(() => {
+        if (initialSubject) setSelectedSubject(initialSubject);
+    }, [initialSubject]);
 
     const subjects: Subject[] = ['Accounting', 'ICT', 'Business Studies'];
 

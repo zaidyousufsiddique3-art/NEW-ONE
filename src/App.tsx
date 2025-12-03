@@ -103,7 +103,7 @@ export default function App() {
               </h1>
 
               <p className="text-base text-slate-400 max-w-2xl mx-auto font-light">
-                {t('studyToolsSubtitle')}
+                {t('studyToolsSubtitlePrefix')} <span className="text-brand-cyan font-medium">{subject ? t(subject === 'Business Studies' ? 'subjectBusiness' : `subject${subject}`) : ''}</span> {t('studyToolsSubtitleSuffix')}
               </p>
             </motion.div>
           )}

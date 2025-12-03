@@ -1,0 +1,4 @@
+export enum ToolId {
+  ASK_QUESTION = "ASK_QUESTION",
+  IMAGE_ANALYSIS = "IMAGE_ANALYSIS",
+}

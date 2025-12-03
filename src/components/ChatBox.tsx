@@ -3,7 +3,7 @@ import { generateAnswerFromBackend } from '../services/backendApiService';
 import { motion } from 'framer-motion';
 import { Download, Image as ImageIcon, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { ToolId } from '../types';
+import { ToolId } from '../types/index';
 
 interface Message {
     role: 'user' | 'assistant';
@@ -57,7 +57,6 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
         setIsGenerating(true);
 
         try {
-            // Use backend API with PDF-first logic
             const answer = await generateAnswerFromBackend(
                 userMsg,
                 language,
@@ -86,10 +85,11 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                         className={`max-w-[80%] ${msg.role === 'user' ? 'ml-auto' : 'mr-auto'} `}
                     >
                         <div
-                            className={`rounded-lg p-3 ${msg.role === 'user'
-                                ? 'bg-brand-cyan text-black'
-                                : 'bg-white/10 text-white whitespace-pre-wrap'
-                                }`}
+                            className={`rounded-lg p-3 ${
+                                msg.role === 'user'
+                                    ? 'bg-brand-cyan text-black'
+                                    : 'bg-white/10 text-white whitespace-pre-wrap'
+                            }`}
                         >
                             {msg.images && msg.images.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mb-2">
@@ -102,6 +102,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                         </div>
                     </motion.div>
                 ))}
+
                 {isGenerating && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -165,6 +166,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                     onKeyDown={e => e.key === 'Enter' && handleSend()}
                     disabled={isGenerating}
                 />
+
                 <button
                     onClick={() => {
                         import('jspdf').then(({ jsPDF }) => {
@@ -192,6 +194,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                 >
                     <Download className="w-5 h-5" />
                 </button>
+
                 <button
                     onClick={handleSend}
                     disabled={isGenerating || (!input.trim() && selectedImages.length === 0)}

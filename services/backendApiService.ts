@@ -4,18 +4,13 @@
  */
 
 const getApiBaseUrl = () => {
-    const url = (import.meta as any).env?.VITE_API_URL;
-
-    if (url) {
-        let cleanUrl = url.replace(/\/$/, '');
-        if (cleanUrl.endsWith('/api')) {
-            cleanUrl = cleanUrl.slice(0, -4);
-        }
-        return cleanUrl;
+    const url = import.meta.env.VITE_API_URL;
+    if (!url) {
+        console.error('VITE_API_URL is not set!');
+        return '';
     }
-
-    // fallback to same-origin backend
-    return '';
+    // Remove trailing slash
+    return url.replace(/\/$/, '');
 };
 
 const API_BASE_URL = getApiBaseUrl();

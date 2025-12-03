@@ -218,6 +218,7 @@ BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT):
      * +25 in one's complement → 00011001 (8 bits)
    - If user requests "6-bit", "12-bit", or "n-bit", honor that request
    - Always show the bit-length used in your answer (e.g., "8-bit binary: 00110010")
+9. Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.
 
 If the files don't contain enough information, still provide a helpful answer based on your A-Level ICT knowledge.`,
                     model: 'gpt-4o',
@@ -297,6 +298,7 @@ BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT):
      * +25 in one's complement → 00011001 (8 bits)
    - If user requests "6-bit", "12-bit", or "n-bit", honor that request
    - Always show the bit-length used in your answer (e.g., "8-bit binary: 00110010")
+9. Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.
 
 Module: ${moduleName}`;
 
@@ -324,5 +326,48 @@ Module: ${moduleName}`;
             sinhala: "මම ඔබේ A-මට්ටම ICT අධ්‍යයනයට උදව් කිරීමට මෙහි සිටිමි! කරුණාකර ඔබේ ප්‍රශ්නය නැවත අසන්න.",
         };
         return fallbackMessages[selectedLanguage.toLowerCase()] || fallbackMessages.english;
+    }
+}
+
+/**
+ * Analyze images using OpenAI Vision
+ */
+export async function analyzeImages(question, images, selectedLanguage = 'english') {
+    try {
+        const language = selectedLanguage.toLowerCase();
+        const languageInstruction = getLanguageInstructions(language);
+
+        console.log(`Analyzing ${images.length} images with question: "${question}" in ${language}`);
+
+        const messages = [
+            {
+                role: 'system',
+                content: `You are an expert A-Level ICT tutor. ${languageInstruction}
+                Analyze the provided images and answer the user's question.
+                Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.`
+            },
+            {
+                role: 'user',
+                content: [
+                    { type: 'text', text: question },
+                    ...images.map(img => ({
+                        type: 'image_url',
+                        image_url: { url: img }
+                    }))
+                ]
+            }
+        ];
+
+        const response = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: messages,
+            max_tokens: 2000,
+        });
+
+        return response.choices[0]?.message?.content || "No response generated.";
+
+    } catch (error) {
+        console.error('Error analyzing images:', error);
+        throw error;
     }
 }

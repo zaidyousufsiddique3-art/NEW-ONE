@@ -31,8 +31,8 @@ export const ModeModal: React.FC<ModeModalProps> = ({
 
     if (!tool) return null;
 
-    // Check if this is the "Ask a Question" mode (use chat interface)
-    const isChatMode = tool.id === ToolId.ASK_QUESTION;
+    // Check if this is the "Ask a Question" or "Image Analysis" mode (use chat interface)
+    const isChatMode = tool.id === ToolId.ASK_QUESTION || tool.id === ToolId.IMAGE_ANALYSIS;
 
     return (
         <AnimatePresence>

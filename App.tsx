@@ -38,21 +38,8 @@ export default function App() {
 
     setIsGenerating(true);
     try {
-      // Handle Logic Diagram generation separately
-      if (selectedTool.id === ToolId.LOGIC_DIAGRAM) {
-        const { generateLogicDiagram } = await import('./services/backendApiService');
-        const { imageUrl, caption } = await generateLogicDiagram(topic, language);
-
-        // Format as markdown to display in ResultBox
-        const markdownResult = `
-![Logic Diagram for ${topic}](${imageUrl})
-
-### Explanation
-${caption}
-        `;
-
-        setResult(markdownResult);
-      } else {
+      // Standard generation for other tools
+      {
         // Build the complete question/prompt for the backend
         const fullQuestion = notes
           ? `${selectedTool.promptTemplate(topic, notes)}`

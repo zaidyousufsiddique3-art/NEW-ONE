@@ -26,32 +26,63 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
         if (acceptedFiles.length === 0) return;
 
         setIsUploading(true);
-        const file = acceptedFiles[0]; // Handle one file at a time for simplicity
+        let successCount = 0;
+        let failCount = 0;
 
-        try {
-            // 1. Upload to Firebase Storage
-            setUploadStatus(`Uploading ${file.name} to storage...`);
-            const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
+        for (let i = 0; i < acceptedFiles.length; i++) {
+            const file = acceptedFiles[i];
+            setUploadStatus(`Uploading ${i + 1}/${acceptedFiles.length}: ${file.name}...`);
 
-            // 2. Save metadata to Firestore
-            setUploadStatus('Saving metadata...');
-            await addDoc(collection(db, 'files'), {
-                fileName: file.name,
-                fileUrl: downloadURL,
-                uploadedBy: 'student', // In a real app, this would be the user ID
-                uploadedAt: new Date().toISOString(),
-                size: file.size,
-                type: file.type
-            });
+            try {
+                // 1. Upload to Firebase Storage
+                const storageRef = ref(storage, `uploads/${Date.now()}_${file.name}`);
+                const snapshot = await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(snapshot.ref);
 
-            // 3. Process with Backend (OpenAI)
-            setUploadStatus('Processing with AI Knowledge Hub...');
-            await processUploadedFile(downloadURL, file.name);
+                // 2. Save metadata to Firestore
+                await addDoc(collection(db, 'files'), {
+                    fileName: file.name,
+                    fileUrl: downloadURL,
+                    uploadedBy: 'student', // In a real app, this would be the user ID
+                    uploadedAt: new Date().toISOString(),
+                    size: file.size,
+                    type: file.type
+                });
 
+                // 3. Process with Backend (OpenAI)
+                // We attempt this, but if it fails (e.g. 500 error), we still consider the upload "successful" from user perspective
+                // as requested: "The message should appear only if the file reaches Firebase successfully."
+                try {
+                    await processUploadedFile(downloadURL, file.name);
+                } catch (backendError) {
+                    console.warn(`Backend processing failed for ${file.name}, but file is in Firebase.`, backendError);
+                    // Suppress error for UI
+                }
+
+                successCount++;
+
+            } catch (err: any) {
+                console.error(`Error uploading ${file.name}:`, err);
+                failCount++;
+                if (err.code === 'storage/unauthorized') {
+                    setError('Storage Permission Denied: Update Firebase Storage Rules.');
+                    break; // Stop on permission error
+                } else if (err.code === 'permission-denied') {
+                    setError('Firestore Permission Denied: Update Firebase Database Rules.');
+                    break;
+                }
+            }
+        }
+
+        setIsUploading(false);
+
+        if (successCount > 0) {
             setSuccess(true);
-            setUploadStatus('File uploaded successfully and added to your knowledge hub!');
+            if (acceptedFiles.length > 1) {
+                setUploadStatus('All files uploaded successfully');
+            } else {
+                setUploadStatus('File uploaded successfully');
+            }
 
             setTimeout(() => {
                 onUploadComplete();
@@ -59,19 +90,10 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                 setSuccess(false);
                 setUploadStatus('');
             }, 2000);
-
-        } catch (err: any) {
-            console.error(err);
-            if (err.code === 'storage/unauthorized') {
-                setError('Storage Permission Denied: Update Firebase Storage Rules.');
-            } else if (err.code === 'permission-denied') {
-                setError('Firestore Permission Denied: Update Firebase Database Rules (see FIREBASE_RULES.md).');
-            } else {
-                setError(err.message || 'Failed to upload file');
-            }
-        } finally {
-            setIsUploading(false);
+        } else if (failCount > 0 && !error) {
+            setError('Failed to upload files. Please try again.');
         }
+
     }, [onClose, onUploadComplete]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -83,7 +105,7 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
             'application/vnd.openxmlformats-officedocument.presentationml.presentation': ['.ppt', '.pptx'],
             'image/*': ['.png', '.jpg', '.jpeg']
         },
-        maxFiles: 1,
+        maxFiles: 10, // Allow multiple files
         disabled: isUploading
     });
 
@@ -143,7 +165,7 @@ export const FileUploaderModal: React.FC<FileUploaderModalProps> = ({ isOpen, on
                                         </div>
                                         <div className="space-y-2">
                                             <p className="text-lg font-medium text-white">
-                                                {isUploading ? 'Uploading...' : 'Drop your file here'}
+                                                {isUploading ? 'Uploading...' : 'Drop your files here'}
                                             </p>
                                             <p className="text-sm text-slate-400">
                                                 {isUploading

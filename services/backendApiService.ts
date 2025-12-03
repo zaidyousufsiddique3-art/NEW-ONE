@@ -41,7 +41,8 @@ export interface GenerateAnswerResponse {
 export async function generateAnswerFromBackend(
     question: string,
     selectedLanguage: string = 'english',
-    moduleName: string = 'General'
+    moduleName: string = 'General',
+    images: string[] = []
 ): Promise<string> {
     try {
         const response = await fetch(`${API_BASE_URL}/api/generate-answer`, {
@@ -53,6 +54,7 @@ export async function generateAnswerFromBackend(
                 question,
                 selectedLanguage,
                 moduleName,
+                images,
             }),
         });
 

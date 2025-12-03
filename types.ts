@@ -6,7 +6,7 @@ export enum ToolId {
   FLASHCARDS = 'flashcards',
   REVISION_QUESTIONS = 'revision-questions',
   CASE_STUDY = 'case-study',
-  LOGIC_DIAGRAM = 'logic-diagram',
+  IMAGE_ANALYSIS = 'image-analysis',
 }
 
 export interface ToolConfig {

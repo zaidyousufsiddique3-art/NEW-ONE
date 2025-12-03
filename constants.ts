@@ -1,4 +1,4 @@
-import { BookOpen, FileQuestion, CreditCard, Lightbulb, FileText, Cpu } from 'lucide-react';
+import { BookOpen, FileQuestion, CreditCard, Lightbulb, FileText, Image } from 'lucide-react';
 import { ToolId, ToolConfig } from './types';
 
 // Tool configurations - 6 nodes
@@ -108,14 +108,14 @@ export const TOOLS: ToolConfig[] = [
     `
   },
   {
-    id: ToolId.LOGIC_DIAGRAM,
-    title: 'Generate Logic Diagram',
-    description: 'Create logic circuit diagrams from descriptions',
-    icon: Cpu,
-    translationKey: 'logicDiagram',
-    descriptionKey: 'logicDiagramDesc',
+    id: ToolId.IMAGE_ANALYSIS,
+    title: 'Image Analysis',
+    description: 'Upload images and ask questions about them',
+    icon: Image,
+    translationKey: 'imageAnalysis',
+    descriptionKey: 'imageAnalysisDesc',
     promptTemplate: (topic: string, notes?: string) => `
-      Generate a logic circuit diagram for: ${topic}
+      Analyze the provided image(s) and answer the following question: ${topic}
       ${notes ? `\nAdditional Context: ${notes}` : ''}
     `
   }

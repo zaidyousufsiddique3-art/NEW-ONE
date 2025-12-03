@@ -16,7 +16,7 @@ export const bucket = adminStorage;
 // -------------------------
 // IMPORT KNOWLEDGE ENGINE
 // -------------------------
-import { generateAnswer, uploadPDFToOpenAI, getFileIds, processUploadedFile } from './services/knowledgeEngine.js';
+import { generateAnswer, uploadPDFToOpenAI, getFileIds, processUploadedFile, analyzeImages } from './services/knowledgeEngine.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -45,7 +45,12 @@ app.post('/api/generate-answer', async (req, res) => {
 
         console.log(`[${module}] Generating answer for: "${question}" in ${language}`);
 
-        const answer = await generateAnswer(question, language, module);
+        let answer;
+        if (req.body.images && req.body.images.length > 0) {
+            answer = await analyzeImages(question, req.body.images, language);
+        } else {
+            answer = await generateAnswer(question, language, module);
+        }
 
         res.json({
             success: true,

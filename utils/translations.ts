@@ -13,7 +13,7 @@ export const translations = {
         flashcards: 'Flashcards',
         revisionQuestions: 'Quick Revision Questions',
         caseStudy: 'Case Study Answers',
-        logicDiagram: 'Generate Logic Diagram',
+        imageAnalysis: 'Image Analysis',
 
         // Tool descriptions
         askQuestionDesc: 'Get detailed answers to your ICT questions',
@@ -21,7 +21,7 @@ export const translations = {
         flashcardsDesc: 'Create flashcards for quick revision',
         revisionQuestionsDesc: 'Fast recall questions for active revision',
         caseStudyDesc: 'Structured answers for case study scenarios',
-        logicDiagramDesc: 'Create logic circuit diagrams from descriptions',
+        imageAnalysisDesc: 'Upload images and ask questions about them',
 
         // Buttons and labels
         startGenerating: 'START GENERATING',
@@ -49,7 +49,7 @@ export const translations = {
         flashcards: 'ஃப்ளாஷ்கார்டுகள்',
         revisionQuestions: 'விரைவு திருத்தம் கேள்விகள்',
         caseStudy: 'வழக்கு ஆய்வு பதில்கள்',
-        logicDiagram: 'தர்க்க வரைபடத்தை உருவாக்கவும்',
+        imageAnalysis: 'பட பகுப்பாய்வு',
 
         // Tool descriptions
         askQuestionDesc: 'உங்கள் ICT கேள்விகளுக்கு விரிவான பதில்களைப் பெறுங்கள்',
@@ -57,7 +57,7 @@ export const translations = {
         flashcardsDesc: 'விரைவான திருத்தத்திற்காக ஃப்ளாஷ்கார்டுகளை உருவாக்குங்கள்',
         revisionQuestionsDesc: 'செயலில் உள்ள திருத்தத்திற்கான விரைவான நினைவுகூரும் கேள்விகள்',
         caseStudyDesc: 'வழக்கு ஆய்வு காட்சிகளுக்கான கட்டமைக்கப்பட்ட பதில்கள்',
-        logicDiagramDesc: 'விளக்கங்களிலிருந்து தர்க்க சுற்று வரைபடங்களை உருவாக்கவும்',
+        imageAnalysisDesc: 'படங்களை பதிவேற்றி அவற்றைப் பற்றி கேள்விகள் கேளுங்கள்',
 
         // Buttons and labels
         startGenerating: 'உருவாக்க ஆரம்பிக்கவும்',
@@ -85,7 +85,7 @@ export const translations = {
         flashcards: 'ෆ්ලෑෂ් කාඩ්පත්',
         revisionQuestions: 'ඉක්මන් සංශෝධන ප්‍රශ්න',
         caseStudy: 'සිද්ධි අධ්‍යයන පිළිතුරු',
-        logicDiagram: 'තර්ක රූප සටහනක් සාදන්න',
+        imageAnalysis: 'රූප විශ්ලේෂණය',
 
         // Tool descriptions
         askQuestionDesc: 'ඔබගේ ICT ප්‍රශ්න සඳහා සවිස්තරාත්මක පිළිතුරු ලබා ගන්න',
@@ -93,7 +93,7 @@ export const translations = {
         flashcardsDesc: 'ඉක්මන් සංශෝධනය සඳහා ෆ්ලෑෂ් කාඩ්පත් සාදන්න',
         revisionQuestionsDesc: 'ක්‍රියාකාරී සංශෝධනය සඳහා වේගවත් මතක් කිරීමේ ප්‍රශ්න',
         caseStudyDesc: 'සිද්ධි අධ්‍යයන අවස්ථා සඳහා ව්‍යුහගත පිළිතුරු',
-        logicDiagramDesc: 'විස්තර වලින් තර්ක පරිපථ රූප සටහන් සාදන්න',
+        imageAnalysisDesc: 'රූප උඩුගත කර ඒවා ගැන ප්‍රශ්න අසන්න',
 
         // Buttons and labels
         startGenerating: 'ජනනය ආරම්භ කරන්න',

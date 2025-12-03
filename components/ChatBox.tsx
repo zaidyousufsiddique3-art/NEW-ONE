@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { generateAnswerFromBackend } from '../services/backendApiService';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Image as ImageIcon, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { ToolId } from '../types';
 
 interface Message {
     role: 'user' | 'assistant';
     content: string;
+    images?: string[];
 }
 
 interface ChatBoxProps {
-    /** The tool id for which this chat is used (Ask Question) */
+    /** The tool id for which this chat is used (Ask Question or Image Analysis) */
     toolId: string;
 }
 
@@ -19,16 +21,49 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
+    const [selectedImages, setSelectedImages] = useState<string[]>([]);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const isImageAnalysis = toolId === ToolId.IMAGE_ANALYSIS;
+
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    if (reader.result) {
+                        setSelectedImages(prev => [...prev, reader.result as string]);
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    };
+
+    const removeImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
 
     const handleSend = async () => {
-        if (!input.trim() || !language) return;
+        if ((!input.trim() && selectedImages.length === 0) || !language) return;
+
         const userMsg = input.trim();
-        setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+        const currentImages = [...selectedImages];
+
+        setMessages(prev => [...prev, { role: 'user', content: userMsg, images: currentImages }]);
         setInput('');
+        setSelectedImages([]);
         setIsGenerating(true);
+
         try {
             // Use backend API with PDF-first logic
-            const answer = await generateAnswerFromBackend(userMsg, language, 'Ask Question');
+            const answer = await generateAnswerFromBackend(
+                userMsg,
+                language,
+                isImageAnalysis ? 'Image Analysis' : 'Ask Question',
+                currentImages
+            );
             setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
         } catch (e) {
             console.error(e);
@@ -55,6 +90,13 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                                 : 'bg-white/10 text-white whitespace-pre-wrap'
                                 }`}
                         >
+                            {msg.images && msg.images.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mb-2">
+                                    {msg.images.map((img, i) => (
+                                        <img key={i} src={img} alt="Uploaded" className="w-24 h-24 object-cover rounded-md border border-black/10" />
+                                    ))}
+                                </div>
+                            )}
                             {msg.content}
                         </div>
                     </motion.div>
@@ -73,12 +115,50 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                     </motion.div>
                 )}
             </div>
+
+            {/* Image Previews */}
+            {selectedImages.length > 0 && (
+                <div className="px-4 py-2 flex gap-2 overflow-x-auto border-t border-white/10 bg-white/5">
+                    {selectedImages.map((img, idx) => (
+                        <div key={idx} className="relative shrink-0">
+                            <img src={img} alt="Preview" className="w-16 h-16 object-cover rounded-md border border-white/20" />
+                            <button
+                                onClick={() => removeImage(idx)}
+                                className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Input */}
             <div className="flex items-center gap-2 p-2 border-t border-white/10">
+                {isImageAnalysis && (
+                    <>
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={handleImageUpload}
+                        />
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-2 bg-white/5 text-slate-300 rounded-md hover:bg-white/10 transition border border-white/10"
+                            title="Upload Images"
+                        >
+                            <ImageIcon className="w-5 h-5" />
+                        </button>
+                    </>
+                )}
+
                 <input
                     type="text"
                     className="flex-1 bg-white/5 text-white placeholder-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-cyan/50"
-                    placeholder="Ask a question…"
+                    placeholder={isImageAnalysis ? "Ask a question about the images..." : "Ask a question…"}
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSend()}
@@ -113,7 +193,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                 </button>
                 <button
                     onClick={handleSend}
-                    disabled={isGenerating || !input.trim()}
+                    disabled={isGenerating || (!input.trim() && selectedImages.length === 0)}
                     className="px-4 py-2 bg-brand-cyan text-black rounded-md hover:bg-brand-cyan/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Send

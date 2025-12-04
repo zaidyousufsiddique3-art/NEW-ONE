@@ -18,14 +18,30 @@ requiredVars.forEach(key => {
 });
 
 if (!admin.apps.length) {
+  // Handle private key - convert escaped \n to actual newlines
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  // Replace literal \n with actual newlines
+  if (privateKey.includes('\\n')) {
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+
+  // Additional validation
+  if (!privateKey.includes('BEGIN PRIVATE KEY')) {
+    console.error('FIREBASE_PRIVATE_KEY appears to be malformed');
+    throw new Error('Invalid FIREBASE_PRIVATE_KEY format');
+  }
+
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      privateKey: privateKey,
     }),
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
   });
+
+  console.log('✅ Firebase Admin initialized successfully');
 }
 
 export const adminDB = admin.firestore();

@@ -30,9 +30,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
     useEffect(() => {
         if (messages.length === 0 && subject) {
             const welcomeMap: Record<string, string> = {
-                english: `Hello! How can I assist you with your A-Level ${subject} studies today?`,
-                tamil: `வணக்கம்! இன்று உங்கள் A-Level ${subject} படிப்பில் நான் எவ்வாறு உதவ முடியும்?`,
-                sinhala: `ආයුබෝවන්! අද ඔබේ A-Level ${subject} අධ්‍යයන කටයුතු සඳහා මට කෙසේ උදව් කළ හැකිද?`
+                english: `Hi, how can I help you?`,
+                tamil: `வணக்கம், நான் உங்களுக்கு எவ்வாறு உதவ முடியும்?`,
+                sinhala: `හායි, මට ඔබට කෙසේ උදව් කළ හැකිද?`
             };
             setMessages([{ role: 'assistant', content: welcomeMap[language || 'english'] || welcomeMap.english }]);
         }
@@ -101,8 +101,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
                     >
                         <div
                             className={`rounded-lg p-3 ${msg.role === 'user'
-                                    ? 'bg-brand-cyan text-black'
-                                    : 'bg-white/10 text-white whitespace-pre-wrap'
+                                ? 'bg-brand-cyan text-black'
+                                : 'bg-white/10 text-white whitespace-pre-wrap'
                                 }`}
                         >
                             {msg.images && msg.images.length > 0 && (

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Language = 'english' | 'tamil' | 'sinhala';
-export type Subject = 'Accounting' | 'ICT' | 'Business Studies' | 'Economics' | 'Law';
+export type Subject = 'Accounting' | 'ICT' | 'Business Studies';
 
 interface LanguageContextProps {
   language: Language | null;

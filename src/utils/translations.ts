@@ -16,7 +16,7 @@ export const translations = {
         imageAnalysis: 'Image Analysis',
 
         // Tool descriptions
-        askQuestionDesc: 'Get detailed answers to your ICT questions',
+        askQuestionDesc: 'Get detailed answers to your questions',
         examQuestionsDesc: 'Generate practice exam questions with mark schemes',
         flashcardsDesc: 'Create flashcards for quick revision',
         revisionQuestionsDesc: 'Fast recall questions for active revision',
@@ -27,8 +27,7 @@ export const translations = {
         subjectICT: 'ICT',
         subjectAccounting: 'Accounting',
         subjectBusiness: 'Business Studies',
-        subjectEconomics: 'Economics',
-        subjectLaw: 'Law',
+
 
         // Dynamic Subtitle
         studyToolsSubtitlePrefix: 'AI-powered A-Level',
@@ -58,8 +57,7 @@ export const translations = {
         subjectICT: 'ICT',
         subjectAccounting: 'கணக்கியல்',
         subjectBusiness: 'வணிக ஆய்வுகள்',
-        subjectEconomics: 'பொருளாதாரம்',
-        subjectLaw: 'சட்டம்',
+
 
         // Dynamic Subtitle
         studyToolsSubtitlePrefix: 'AI-இயக்கப்படும் A-நிலை',
@@ -74,7 +72,7 @@ export const translations = {
         imageAnalysis: 'பட பகுப்பாய்வு',
 
         // Tool descriptions
-        askQuestionDesc: 'உங்கள் ICT கேள்விகளுக்கு விரிவான பதில்களைப் பெறுங்கள்',
+        askQuestionDesc: 'உங்கள் கேள்விகளுக்கு விரிவான பதில்களைப் பெறுங்கள்',
         examQuestionsDesc: 'மதிப்பெண் திட்டங்களுடன் பயிற்சித் தேர்வு கேள்விகளை உருவாக்குங்கள்',
         flashcardsDesc: 'விரைவான திருத்தத்திற்காக ஃப்ளாஷ்கார்டுகளை உருவாக்குங்கள்',
         revisionQuestionsDesc: 'செயலில் உள்ள திருத்தத்திற்கான விரைவான நினைவுகூரும் கேள்விகள்',
@@ -105,8 +103,7 @@ export const translations = {
         subjectICT: 'ICT',
         subjectAccounting: 'ගිණුම්කරණය',
         subjectBusiness: 'ව්‍යාපාර අධ්‍යයනය',
-        subjectEconomics: 'ආර්ථික විද්‍යාව',
-        subjectLaw: 'නීතිය',
+
 
         // Dynamic Subtitle
         studyToolsSubtitlePrefix: 'AI මගින් බලගන්වන A-මට්ටම',
@@ -121,7 +118,7 @@ export const translations = {
         imageAnalysis: 'රූප විශ්ලේෂණය',
 
         // Tool descriptions
-        askQuestionDesc: 'ඔබගේ ICT ප්‍රශ්න සඳහා සවිස්තරාත්මක පිළිතුරු ලබා ගන්න',
+        askQuestionDesc: 'ඔබගේ ප්‍රශ්න සඳහා සවිස්තරාත්මක පිළිතුරු ලබා ගන්න',
         examQuestionsDesc: 'ලකුණු ක්‍රම සමඟ පුහුණු විභාග ප්‍රශ්න ජනනය කරන්න',
         flashcardsDesc: 'ඉක්මන් සංශෝධනය සඳහා ෆ්ලෑෂ් කාඩ්පත් සාදන්න',
         revisionQuestionsDesc: 'ක්‍රියාකාරී සංශෝධනය සඳහා වේගවත් මතක් කිරීමේ ප්‍රශ්න',

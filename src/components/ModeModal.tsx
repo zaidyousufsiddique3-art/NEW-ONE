@@ -82,7 +82,7 @@ export const ModeModal: React.FC<ModeModalProps> = ({
                                                 type="text"
                                                 value={topic}
                                                 onChange={(e) => setTopic(e.target.value)}
-                                                placeholder="e.g. Input Devices, Network Topologies..."
+                                                placeholder=""
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-cyan/50 focus:ring-1 focus:ring-brand-cyan/50 transition-all"
                                                 required
                                             />
@@ -93,7 +93,7 @@ export const ModeModal: React.FC<ModeModalProps> = ({
                                             <textarea
                                                 value={notes}
                                                 onChange={(e) => setNotes(e.target.value)}
-                                                placeholder="Any specific requirements or focus areas..."
+                                                placeholder=""
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-cyan/50 focus:ring-1 focus:ring-brand-cyan/50 transition-all min-h-[100px] resize-none"
                                             />
                                         </div>

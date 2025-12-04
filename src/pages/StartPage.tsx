@@ -34,7 +34,7 @@ export const StartPage: React.FC = () => {
         { code: 'sinhala' as Language, label: 'සිංහල', emoji: '🇱🇰' }
     ];
 
-    const subjects: Subject[] = ['ICT', 'Accounting', 'Business Studies', 'Economics', 'Law'];
+    const subjects: Subject[] = ['ICT', 'Accounting', 'Business Studies'];
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-[#0a0f1c] via-[#1a1f35] to-[#0a0f1c] flex items-center justify-center p-4">
@@ -53,7 +53,7 @@ export const StartPage: React.FC = () => {
                     >
                         <Globe className="w-8 h-8 text-white" />
                     </motion.div>
-                    <h1 className="text-3xl font-bold text-white">Welcome to ICT Study Copilot</h1>
+                    <h1 className="text-3xl font-bold text-white">Welcome to AI-Powered Revision Learner</h1>
                     <p className="text-sm text-slate-400">Select language, subject & upload your study materials</p>
 
                     {/* Upload Files Button - Top Right */}

@@ -3,7 +3,7 @@
  * This replaces direct OpenAI calls from the frontend
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
 /**
  * Generate answer using the backend API

@@ -58,7 +58,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
     };
 
     const handleSend = async () => {
-        if ((!input.trim() && selectedImages.length === 0) || !language) return;
+        // Allow sending if either there's text OR there are images
+        if (selectedImages.length === 0 && !input.trim()) return;
+        if (!language) return;
 
         const userMsg = input.trim();
         const userNote = note.trim();
@@ -66,7 +68,11 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
 
         const currentImages = [...selectedImages];
 
-        setMessages(prev => [...prev, { role: 'user', content: combinedMsg, images: currentImages }]);
+        // Only add a user message if there's actual text content
+        if (combinedMsg || currentImages.length > 0) {
+            setMessages(prev => [...prev, { role: 'user', content: combinedMsg || '', images: currentImages }]);
+        }
+
         setInput('');
         setNote('');
         setSelectedImages([]);
@@ -74,7 +80,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
 
         try {
             const answer = await generateAnswerFromBackend(
-                combinedMsg,
+                combinedMsg || '', // Send empty string if no text, backend will handle it
                 language,
                 isImageAnalysis ? 'Image Analysis' : 'Ask Question',
                 currentImages,
@@ -222,7 +228,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({ toolId }) => {
 
                 <button
                     onClick={handleSend}
-                    disabled={isGenerating || (!input.trim() && selectedImages.length === 0)}
+                    disabled={isGenerating || (selectedImages.length === 0 && !input.trim())}
                     className="px-4 py-2 bg-brand-cyan text-black rounded-md hover:bg-brand-cyan/80 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     Send

@@ -36,19 +36,20 @@ app.post('/api/generate-answer', async (req, res) => {
     try {
         const { question, selectedLanguage, moduleName, subject } = req.body;
 
-        if (!question) {
-            return res.status(400).json({ error: 'Question is required' });
+        // Allow either question OR images (not requiring both)
+        if (!question && (!req.body.images || req.body.images.length === 0)) {
+            return res.status(400).json({ error: 'Either question or images are required' });
         }
 
         const language = selectedLanguage || 'english';
         const module = moduleName || 'General';
         const subj = subject || 'General';
 
-        console.log(`[${module}] Generating answer for: "${question}" in ${language} (Subject: ${subj})`);
+        console.log(`[${module}] Generating answer for: "${question || 'image analysis'}" in ${language} (Subject: ${subj})`);
 
         let answer;
         if (req.body.images && req.body.images.length > 0) {
-            answer = await analyzeImages(question, req.body.images, language);
+            answer = await analyzeImages(question || '', req.body.images, language, subj);
         } else {
             answer = await generateAnswer(question, language, module, subj);
         }

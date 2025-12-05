@@ -210,7 +210,7 @@ export async function generateAnswer(question, selectedLanguage = 'english', mod
                 });
 
                 const assistant = await openai.beta.assistants.create({
-                    name: 'ICT Study Assistant',
+                    name: `${subject} Study Assistant`,
                     instructions: `You are an expert A-Level ICT tutor. Use the provided files as your PRIMARY knowledge source. ${languageInstruction}
 
 CRITICAL RULES:
@@ -222,8 +222,17 @@ CRITICAL RULES:
 6. For flashcards: format as Q&A pairs
 7. For case studies: provide structured analysis
 
+STRICT DOMAIN FOCUS (EXTREMELY IMPORTANT):
+8. Your response MUST ONLY contain information relevant to the CURRENT SUBJECT being queried (${subject}).
+9. NEVER mention, reference, or include terms from unrelated subjects. Examples of what to filter out:
+   - If answering about ACCOUNTING: Do NOT mention "ICT", "A-Level ICT", "Computer Science", or any technology terms
+   - If answering about BUSINESS: Do NOT mention "ICT", "A-Level ICT", "Computer Science", or any technology terms
+   - If answering about ICT: You may reference ICT-related content
+10. When generating exam-style questions, the subject context and examples must ONLY relate to ${subject}.
+11. Filter out and NEVER reference educational frameworks unrelated to the current subject (${subject}).
+
 BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT):
-8. For ALL binary conversions, one's complement, and two's complement:
+12. For ALL binary conversions, one's complement, and two's complement:
    - DEFAULT to 8-bit representation UNLESS the user explicitly specifies a different bit length
    - Examples:
      * +50 in binary → 00110010 (8 bits, not 110010)
@@ -231,9 +240,9 @@ BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT):
      * +25 in one's complement → 00011001 (8 bits)
    - If user requests "6-bit", "12-bit", or "n-bit", honor that request
    - Always show the bit-length used in your answer (e.g., "8-bit binary: 00110010")
-9. Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.
+13. Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.
 
-If the files don't contain enough information, still provide a helpful answer based on your A-Level ICT knowledge.`,
+If the files don't contain enough information, still provide a helpful answer based on your A-Level ${subject} knowledge.`,
                     model: 'gpt-4o',
                     tools: [{ type: 'file_search' }],
                 });
@@ -289,9 +298,9 @@ If the files don't contain enough information, still provide a helpful answer ba
 
         // Step 2: Fallback
         console.log(`[${moduleName}] Using OpenAI fallback (no files)`);
-        const systemPrompt = `You are an expert A-Level ICT tutor. ${languageInstruction}
+        const systemPrompt = `You are an expert A-Level ${subject} tutor. ${languageInstruction}
 
-Provide clear, comprehensive answers suitable for A-Level ICT students.
+Provide clear, comprehensive answers suitable for A-Level ${subject} students.
 
 CRITICAL RULES:
 1. ${languageInstruction}
@@ -302,8 +311,17 @@ CRITICAL RULES:
 6. For case studies: provide detailed, structured analysis
 7. Always be helpful and educational
 
-BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT):
-8. For ALL binary conversions, one's complement, and two's complement:
+STRICT DOMAIN FOCUS (EXTREMELY IMPORTANT):
+8. Your response MUST ONLY contain information relevant to ${subject}.
+9. NEVER mention, reference, or include terms from unrelated subjects. Examples of what to filter out:
+   - If answering about ACCOUNTING: Do NOT mention "ICT", "A-Level ICT", "Computer Science", or any technology terms
+   - If answering about BUSINESS: Do NOT mention "ICT", "A-Level ICT", "Computer Science", or any technology terms
+   - If answering about ICT: You may reference ICT-related content
+10. When generating exam-style questions, the subject context and examples must ONLY relate to ${subject}.
+11. Filter out and NEVER reference educational frameworks unrelated to the current subject (${subject}).
+
+BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT - FOR ICT ONLY):
+12. For ALL binary conversions, one's complement, and two's complement:
    - DEFAULT to 8-bit representation UNLESS the user explicitly specifies a different bit length
    - Examples:
      * +50 in binary → 00110010 (8 bits, not 110010)
@@ -311,7 +329,7 @@ BINARY/COMPLEMENT CONVERSION RULES (VERY IMPORTANT):
      * +25 in one's complement → 00011001 (8 bits)
    - If user requests "6-bit", "12-bit", or "n-bit", honor that request
    - Always show the bit-length used in your answer (e.g., "8-bit binary: 00110010")
-9. Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.
+13. Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.
 
 Module: ${moduleName}`;
 
@@ -334,35 +352,46 @@ Module: ${moduleName}`;
     } catch (error) {
         console.error(`[${moduleName}] Error generating answer:`, error);
         const fallbackMessages = {
-            english: "I'm here to help with your A-Level ICT studies! Please try asking your question again.",
-            tamil: "நான் உங்கள் A-நிலை ICT படிப்புக்கு உதவ இங்கே இருக்கிறேன்! தயவுசெய்து உங்கள் கேள்வியை மீண்டும் கேளுங்கள்.",
-            sinhala: "මම ඔබේ A-මට්ටම ICT අධ්‍යයනයට උදව් කිරීමට මෙහි සිටිමි! කරුණාකර ඔබේ ප්‍රශ්නය නැවත අසන්න.",
+            english: `I'm here to help with your A-Level ${subject} studies! Please try asking your question again.`,
+            tamil: `நான் உங்கள் A-நிலை ${subject} படிப்புக்கு உதவ இங்கே இருக்கிறேன்! தயவுசெய்து உங்கள் கேள்வியை மீண்டும் கேளுங்கள்.`,
+            sinhala: `මම ඔබේ A-මට්ටම ${subject} අධ්‍යයනයට උදව් කිරීමට මෙහි සිටිමි! කරුණාකර ඔබේ ප්‍රශ්නය නැවත අසන්න.`,
         };
         return fallbackMessages[selectedLanguage.toLowerCase()] || fallbackMessages.english;
     }
 }
 
-/**
- * Analyze images using OpenAI Vision
- */
-export async function analyzeImages(question, images, selectedLanguage = 'english') {
+export async function analyzeImages(question, images, selectedLanguage = 'english', subject = 'General') {
     try {
         const language = selectedLanguage.toLowerCase();
         const languageInstruction = getLanguageInstructions(language);
 
-        console.log(`Analyzing ${images.length} images with question: "${question}" in ${language}`);
+        // If no question is provided, default to describing the images
+        const defaultQuestion = question && question.trim()
+            ? question
+            : 'Please analyze and describe what you see in this image in detail.';
+
+        console.log(`Analyzing ${images.length} images with question: "${defaultQuestion}" in ${language}`);
 
         const messages = [
             {
                 role: 'system',
-                content: `You are an expert A-Level ICT tutor. ${languageInstruction}
+                content: `You are an expert A-Level ${subject} tutor. ${languageInstruction}
                 Analyze the provided images and answer the user's question.
+                
+                STRICT DOMAIN FOCUS (EXTREMELY IMPORTANT):
+                - Your response MUST ONLY contain information relevant to ${subject}.
+                - NEVER mention, reference, or include terms from unrelated subjects.
+                - If analyzing about ACCOUNTING images: Focus ONLY on accounting concepts, do NOT mention "ICT", "A-Level ICT", or "Computer Science"
+                - If analyzing about BUSINESS images: Focus ONLY on business concepts, do NOT mention "ICT", "A-Level ICT", or "Computer Science"  
+                - If analyzing about ICT images: You may reference ICT-related content
+                - When the image contains exam questions, ensure your analysis refers ONLY to ${subject} context.
+                
                 Use standard markdown bold (**text**) for emphasis. Do NOT use quotation marks for emphasis.`
             },
             {
                 role: 'user',
                 content: [
-                    { type: 'text', text: question },
+                    { type: 'text', text: defaultQuestion },
                     ...images.map(img => ({
                         type: 'image_url',
                         image_url: { url: img }

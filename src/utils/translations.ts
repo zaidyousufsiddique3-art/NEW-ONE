@@ -5,7 +5,7 @@ export const translations = {
         aiPoweredLearning: 'AI-POWERED LEARNING',
         whatWouldYouLike: 'What would you like to',
         generateToday: 'generate today?',
-        studyToolsSubtitle: 'AI-powered A-Level ICT study tools.',
+
 
         // Tool names
         askQuestion: 'Ask a Question',
@@ -51,7 +51,7 @@ export const translations = {
         aiPoweredLearning: 'AI-இயக்கப்படும் கற்றல்',
         whatWouldYouLike: 'நீங்கள் என்ன',
         generateToday: 'உருவாக்க விரும்புகிறீர்கள்?',
-        studyToolsSubtitle: 'AI-இயக்கப்படும் A-நிலை ICT கல்வி கருவிகள்.',
+
 
         // Subjects
         subjectICT: 'ICT',
@@ -97,7 +97,7 @@ export const translations = {
         aiPoweredLearning: 'AI මගින් බලගන්වන ඉගෙනීම',
         whatWouldYouLike: 'ඔබට අද',
         generateToday: 'ජනනය කිරීමට අවශ්‍යද?',
-        studyToolsSubtitle: 'AI මගින් බලගන්වන A-මට්ටම ICT අධ්‍යයන මෙවලම්.',
+
 
         // Subjects
         subjectICT: 'ICT',
